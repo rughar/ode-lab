@@ -1,0 +1,4 @@
+{
+  "cmake.sourceDirectory": "C:/repos/ode-lab",
+  "cmake.buildDirectory": "${workspaceFolder}/build"
+}

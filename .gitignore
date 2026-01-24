@@ -1,0 +1,55 @@
+# =========================
+# Build artefacts (CMake)
+# =========================
+build/
+out/
+cmake-build-*/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+install_manifest.txt
+
+# =========================
+# Visual Studio / MSBuild
+# =========================
+.vs/
+*.vcxproj*
+*.sln
+*.filters
+*.user
+Debug/
+Release/
+RelWithDebInfo/
+MinSizeRel/
+
+# =========================
+# VS Code
+# =========================
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+
+# =========================
+# Windows noise
+# =========================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# =========================
+# Compiler outputs
+# =========================
+*.o
+*.obj
+*.lo
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
+*.exe
+*.pdb
