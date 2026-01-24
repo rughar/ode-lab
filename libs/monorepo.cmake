@@ -1,6 +1,5 @@
 include_guard(GLOBAL)
 
-
 function(_monorepo_attach_headers TARGET_NAME INC_DIR scope)
   set(options)
   set(oneValueArgs)
