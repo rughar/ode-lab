@@ -36,28 +36,38 @@ namespace verlet
 // -------------------------------------------------------------------------
 
     template<class U>
-    struct ricatti_coef 
+    class ricatti_coef 
     {
-        size_t n;
-        std::vector<U> A; 
-        std::vector<std::vector<U>> B;
-        std::vector<std::vector<std::vector<U>>> C;
+        private:
+            
+            size_t n;
 
-        void init(size_t dim) 
-        {
-            n = dim;
-            A.resize(dim, U(0));
-            B.resize(dim, std::vector<U>(dim, U(0)));
-            C.resize(dim, std::vector<std::vector<U>>(dim, std::vector<U>(dim, U(0))));
-        }   
+        public:
 
-        void symmetrize_C()
-        {
-            for (size_t i = 0; i < n; ++i)
-                for (size_t j = 0; j < n; ++j)
-                    for (size_t k = 0; k < n; ++k)
-                        C[i][j][k] = (C[i][j][k] + C[i][k][j]) / U(2);
-        }  
+            std::vector<U> A; 
+            std::vector<std::vector<U>> B;
+            std::vector<std::vector<std::vector<U>>> C;
+
+            size_t dim() const 
+            { 
+                return n; 
+            }   
+
+            void init(size_t dim) 
+            {
+                n = dim;
+                A.resize(dim, U(0));
+                B.resize(dim, std::vector<U>(dim, U(0)));
+                C.resize(dim, std::vector<std::vector<U>>(dim, std::vector<U>(dim, U(0))));
+            }   
+
+            void symmetrize_C()
+            {
+                for (size_t i = 0; i < n; ++i)
+                    for (size_t j = 0; j < n; ++j)
+                        for (size_t k = 0; k < n; ++k)
+                            C[i][j][k] = (C[i][j][k] + C[i][k][j]) / U(2);
+            }  
     }; 
     
 // -------------------------------------------------------------------------
@@ -80,20 +90,23 @@ namespace verlet
     template<class U>
     class ricatti_core
     {
-        protected:
+        private:
 
             std::vector<U> vec; 
             std::vector<std::vector<U>> mat;
-            ricatti_coef<U>* coef;
 
-            size_t dim() const 
-            { 
-                return coef->n; 
-            }
+        protected:
+        
+            ricatti_coef<U>* coef;
     
         public:
 
             std::vector<U> x;
+
+            size_t dim() const 
+            { 
+                return coef->dim(); 
+            }
 
             void init(ricatti_coef<U>* coefficients) 
             {

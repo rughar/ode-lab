@@ -3,41 +3,43 @@
 
 namespace verlet 
 {
-    //template<class U>
-    //struct verlet_data : public ricatti_core<U> , public ricatti_data<U>
-    //{
-    //};
-
-
     template<class U>
-    class verlet_core
+    class verlet_core : public ricatti_core<U>, protected ricatti_coef<U>
     {
         private:
-            size_t n;
 
-            template<class V1, class V2>
-            void drift(const U h, V1& x, const V2& u) const
+            void drift(const U h)
             {
-                for (size_t i = 0; n; ++i) 
-                    x[i] += h * u[i];   
+                for (size_t i = 0; dim(); ++i) 
+                    ricatti_core<U>::x[i] += h * u[i];   
             }
 
-            template<class V1, class V2>
-            void kick(const U h, const V1& x, V2& u, verlet_data<U>& data) const
+            void kick(const U h)
             {
-                data.vec = x;
-                data.set();   
-                data.step(h, u, data);
+                ricatti_core<U>::step(h);
             }
 
         public:
-            
-            template<class V1, class V2>
-            void step(const U h, V1& x, V2& u, verlet_data<U>& data) const
+
+            std::vector<U> u;
+
+            size_t dim() const 
+            { 
+                return ricatti_coef<U>::dim(); 
+            }   
+
+            void init(const size_t n) 
             {
-                drift(h/2, x, u);
-                kick(h, x, u, data);        
-                drift(h/2, x, u);
+                ricatti_coef<U>::init(n);
+                ricatti_core<U>::init(this);
+                u.resize(n, U(0));
+            }
+
+            void step(const U h)
+            {
+                drift(h/2);
+                kick(h);        
+                drift(h/2);
             }
     };
        
