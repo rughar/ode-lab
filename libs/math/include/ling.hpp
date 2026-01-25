@@ -1,6 +1,4 @@
 
-#pragma once
-
 // =============================================================================
 //  FILE: ling.h  -  lightweight naive LU solver
 // =============================================================================
@@ -14,7 +12,9 @@
 //    - Works on user supplied containers that support A[i][j] style access
 //      and are mutable for the LU stage.
 // =============================================================================
- 
+
+#pragma once 
+
 namespace math {
 
 // ---------------------------------------------------------------------------
@@ -27,20 +27,20 @@ namespace math {
 //  PRECONDITION:  A  must be diagonally dominant so that no element on the
 //  diagonal becomes zero.
 // ---------------------------------------------------------------------------
-template<class Um>
-void lu_naive(const size_t n, Um& A)
-{
-  for (size_t i = 0; i < n; i++) {
-    A[i][i] = 1 / A[i][i];
-    auto aii = A[i][i];
-    for (size_t j = i + 1; j < n; j++) {
-      A[j][i] *= aii;
-      auto aji = A[j][i];
-      for (size_t k = i + 1; k < n; k++)
-        A[j][k] -= aji * A[i][k];
+  template<class Um>
+  void lu_naive(const size_t n, Um& A)
+  {
+    for (size_t i = 0; i < n; i++) {
+      A[i][i] = 1 / A[i][i];
+      auto aii = A[i][i];
+      for (size_t j = i + 1; j < n; j++) {
+        A[j][i] *= aii;
+          auto aji = A[j][i];
+          for (size_t k = i + 1; k < n; k++)
+          A[j][k] -= aji * A[i][k];
+      }
     }
   }
-}
 
 // ---------------------------------------------------------------------------
 //  fb_naive
@@ -49,17 +49,16 @@ void lu_naive(const size_t n, Um& A)
 //  The matrix  A  must already be factorised by  lu_naive.
 //  The solution overwrites  v.
 // ---------------------------------------------------------------------------
-template<class Um, class Uv>
-void fb_naive(const size_t n, const Um& A, Uv& v)
-{
-  for (size_t i = 1; i < n; i++)
-    for (size_t j = 0; j < i; j++)
-      v[i] -= A[i][j] * v[j];
-  for (size_t i = n; i--;) {
-    for (size_t j = i + 1; j < n; j++)
-      v[i] -= A[i][j] * v[j];
-    v[i] *= A[i][i];
+  template<class Um, class Uv>
+  void fb_naive(const size_t n, const Um& A, Uv& v)
+  {
+    for (size_t i = 1; i < n; i++)
+      for (size_t j = 0; j < i; j++)
+        v[i] -= A[i][j] * v[j];
+    for (size_t i = n; i--;) {
+      for (size_t j = i + 1; j < n; j++)
+        v[i] -= A[i][j] * v[j];
+      v[i] *= A[i][i];
+    }
   }
-}
-
 }
