@@ -4,36 +4,32 @@
 namespace verlet 
 {
     template<class U>
-    class verlet_core : public ricatti_core<U>, protected ricatti_coef<U>
+    class verlet_core : public ricatti_core<U>
     {
         private:
 
             void drift(const U h)
             {
-                for (size_t i = 0; dim(); ++i) 
-                    ricatti_core<U>::x[i] += h * u[i];   
+                for (size_t i = 0; i < ricatti_core<U>::dim(); ++i) 
+                    x[i] += h * ricatti_core<U>::u[i];   
             }
 
             void kick(const U h)
             {
+                update_coefs();
                 ricatti_core<U>::step(h);
             }
 
         public:
 
-            std::vector<U> u;
-
-            size_t dim() const 
-            { 
-                return ricatti_coef<U>::dim(); 
-            }   
-
+            std::vector<U> x;
+ 
             void init(const size_t n) 
             {
-                ricatti_coef<U>::init(n);
-                ricatti_core<U>::init(this);
-                u.resize(n, U(0));
+                x.resize(n, U(0));
             }
+
+            virtual void update_coefs() = 0;
 
             void step(const U h)
             {
