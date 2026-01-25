@@ -43,10 +43,6 @@
 #include <functional>
 #include <ling.hpp>
 
-#define A_COEF(i) ACoefProxy(*this, i)
-#define B_COEF(i, j) BCoefProxy(*this, i, j)
-#define C_COEF(i, j, k) CCoefProxy(*this, i, j, k)
-
 namespace verlet 
 {
     template<class U>
@@ -92,6 +88,21 @@ namespace verlet
                     self.mat[self.n * i + j] -= tmp * self.vec[k];
                     self.mat[self.n * i + k] -= tmp * self.vec[j];
                 }
+            };
+
+            ACoefProxy a_coef(const size_t i)
+            {
+                return ACoefProxy(*this, i);
+            };
+
+            BCoefProxy b_coef(const size_t i, const size_t j)
+            {
+                return BCoefProxy(*this, i, j);
+            };
+
+            CCoefProxy c_coef(const size_t i, const size_t j, const size_t k)
+            {
+                return CCoefProxy(*this, i, j, k);
             };
 
         public:

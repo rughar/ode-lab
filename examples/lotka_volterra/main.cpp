@@ -11,13 +11,13 @@ class Lhotka_Voltera : public verlet::ricatti_core<double>
 
             void set_coef() override
             {
-                A_COEF(0) = -0.01;
+                a_coef(0) = -0.01;
   
-                B_COEF(0, 0) = 2.0/3.0;
-                B_COEF(1, 1) = -1.0;
+                b_coef(0, 0) = 2.0/3.0;
+                b_coef(1, 1) = -1.0;
  
-                C_COEF(0, 0, 1) = -4.0/3.0;
-                C_COEF(1, 0, 1) = 1.0;
+                c_coef(0, 0, 1) = -4.0/3.0;
+                c_coef(1, 0, 1) = 1.0;
             }   
     };
 
