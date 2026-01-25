@@ -1,4 +1,4 @@
 {
-  "cmake.sourceDirectory": "C:/repos/ode-lab",
-  "cmake.buildDirectory": "${workspaceFolder}/build"
+  "cmake.buildDirectory": "${workspaceFolder}/build",
+  "cmake.buildBeforeRun": true,
 }
