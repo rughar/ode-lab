@@ -9,16 +9,13 @@ TEST_CASE("ricatti")
         public:
             Lhotka_Voltera() : verlet::ricatti_core<double>(2) {};
 
-            void set_b_coef() override
+            void set_coef() override
             {
-                B_COEF(0, 0) = 2.0/3.0;
-                B_COEF(1, 1) = -1.0;
-            }
-
-            void set_c_coef() override
-            {
-                C_COEF(0, 0, 1) = -4.0/3.0;
-                C_COEF(1, 0, 1) = 1.0;
+                b_coef(0, 0) = 2.0/3.0;
+                b_coef(1, 1) = -1.0;
+    
+                c_coef(0, 0, 1) = -4.0/3.0;
+                c_coef(1, 0, 1) = 1.0;
             }   
     };
 
