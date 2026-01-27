@@ -255,7 +255,7 @@ namespace verlet
       for (size_t j = 0; j < n; j++)
         mat[row_i + j] *= -h / 2;
 
-      mat[(n + 1) * i] += 1;
+      mat[row_i + i] += 1;
       u[i] += h * vec[i];
     }
 
