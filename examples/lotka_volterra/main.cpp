@@ -2,33 +2,38 @@
 #include <ricatti.hpp>
 #include <fstream>
 
-int main() {
+int main()
+{
 
-class Lhotka_Voltera : public verlet::ricatti_core<double> 
+    class Lhotka_Voltera : public verlet::ricatti_core<double>
     {
-        public:
-            Lhotka_Voltera() : verlet::ricatti_core<double>(2) {};
+    public:
+        Lhotka_Voltera() : verlet::ricatti_core<double>(2) {};
 
-            void set_coef() override
-            {
-                a_coef(0) = -0.01;
-  
-                b_coef(0, 0) = 2.0/3.0;
-                b_coef(1, 1) = -1.0;
- 
-                c_coef(0, 0, 1) = -4.0/3.0;
-                c_coef(1, 0, 1) = 1.0;
-            }   
+        void set_coef() override
+        {
+            a_coef(0) = -0.0;
+
+            b_coef(0, 0) = 2.0 / 3.0;
+            b_coef(1, 1) = -1.0;
+
+            c_coef(0, 0, 1) = -4.0 / 3.0;
+            c_coef(1, 0, 1) = 1.0;
+        }
     };
 
     Lhotka_Voltera core;
     core.u = {1.0, 1.0};
-   
+
     std::ofstream out("trajectory.txt");
 
-    for(size_t i = 0; i < 1000; ++i) {
-        core.step(0.1);
+    double h = 0.1;
+    for (size_t i = 0; i < 1000; ++i)
+    {
+        // core.step(0.1);
+        h = core.step_adaptive(h, 0.1);
         out << core.u[0] << " " << core.u[1] << std::endl;
+        // out << h << std::endl;
     }
     out.close();
 
