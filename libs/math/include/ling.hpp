@@ -1,18 +1,14 @@
 // =============================================================================
-//  FILE: ling.h  -  lightweight naive LU solver
+//  FILE: ling.h  -  lightweight naive linear algebra utilities
 // =============================================================================
-//  Purpose :
-//    * lu_naive  - factorises a diagonally dominant matrix (1+A) into L*U.
-//    * fb_naive  - solves (1+A)*x = b in place on v by forward + backward
-//      substitution using the factors produced by lu_naive.
-//
-//  Limitations :
-//    - No pivoting (numeric stability relies on diagonal dominance).
-//    - Works on user supplied containers that support A[n * i + j] style access
-//      and are mutable for the LU stage.
+//  Interface :
+//    - Works on user-supplied containers that support A[n*i + j] indexing
+//      via operator[].
 // =============================================================================
 
 #pragma once
+
+#include <cmath>
 
 namespace math
 {
@@ -20,11 +16,11 @@ namespace math
   // ---------------------------------------------------------------------------
   //  lu_naive
   // ---------------------------------------------------------------------------
-  //  In‑place LU factorisation of an  n*n  matrix  (1+A)  without pivoting.
+  //  In‑place LU factorisation of an n*n matrix A without pivoting.
   //  After the call:
   //      • U  is stored on and above the main diagonal.
   //      • L  (without the unit diagonal) is stored below the diagonal.
-  //  PRECONDITION:  A  must be diagonally dominant so that no element on the
+  //  PRECONDITION: A must be diagonally dominant so that no element on the
   //  diagonal becomes zero.
   // ---------------------------------------------------------------------------
 
@@ -33,14 +29,16 @@ namespace math
   {
     for (size_t i = 0; i < n; i++)
     {
-      A[n * i + i] = 1 / A[n * i + i];
-      auto aii = A[n * i + i];
+      const size_t row_i = n * i;
+      A[row_i + i] = 1 / A[row_i + i];
+      auto a_ii = A[row_i + i];
       for (size_t j = i + 1; j < n; j++)
       {
-        A[n * j + i] *= aii;
-        auto aji = A[n * j + i];
+        const size_t row_j = n * j;
+        A[row_j + i] *= a_ii;
+        auto a_ji = A[row_j + i];
         for (size_t k = i + 1; k < n; k++)
-          A[n * j + k] -= aji * A[n * i + k];
+          A[row_j + k] -= a_ji * A[row_i + k];
       }
     }
   }
@@ -48,22 +46,73 @@ namespace math
   // ---------------------------------------------------------------------------
   //  fb_naive
   // ---------------------------------------------------------------------------
-  //  Forward + backward substitution for  (1+A).x = v .
-  //  The matrix  (1+A)  must already be factorised by  lu_naive.
-  //  The solution overwrites  v.
+  //  Forward + backward substitution for A.x = v
+  //  The matrix A must already be factorised by  lu_naive.
+  //  The solution overwrites v
   // ---------------------------------------------------------------------------
 
   template <class Um, class Uv>
   void fb_naive(const size_t n, const Um &A, Uv &v)
   {
     for (size_t i = 1; i < n; i++)
+    {
+      const size_t row_i = n * i;
       for (size_t j = 0; j < i; j++)
-        v[i] -= A[n * i + j] * v[j];
+        v[i] -= A[row_i + j] * v[j];
+    }
+
     for (size_t i = n; i--;)
     {
+      const size_t row_i = n * i;
       for (size_t j = i + 1; j < n; j++)
-        v[i] -= A[n * i + j] * v[j];
-      v[i] *= A[n * i + i];
+        v[i] -= A[row_i + j] * v[j];
+      v[i] *= A[row_i + i];
     }
   }
+
+  // ---------------------------------------------------------------------------
+  //  spectral_radius_estimate
+  // ---------------------------------------------------------------------------
+  //  Estimates the magnitude of the dominant eigenvalue (spectral radius) from
+  //  two quadratic invariants of the matrix:
+  //
+  //      • tr1 = trace(A)
+  //      • tr2 = trace(A.A)
+  //
+  //  return value: max(|λ1|, |λ2|)
+  //
+  //  For n == 2 the eigenvalues λ1, λ2 satisfy:
+  //
+  //      λ1 + λ2 = tr1
+  //      λ1^2 + λ2^2 = tr2
+  //
+  //  (i.e. the spectral radius for a real 2×2 spectrum).
+  //  Note: For n > 2 this is only a heuristic but surprisingly good estimate
+  //  where we expect that after matrix multiply A := A.A smaller eigenvalues
+  //  will be less dominant.
+  // ---------------------------------------------------------------------------
+
+  template <class Um>
+  auto spectral_radius_estimate(const size_t n, const Um &A)
+  {
+    using U = std::remove_cvref_t<decltype(A[0])>;
+
+    U tr1 = 0;
+    U tr2 = 0;
+
+    for (size_t i = 0; i < n; i++)
+    {
+      const size_t row_i = n * i;
+      tr1 += A[row_i + i];
+      for (size_t j = 0; j < n; j++)
+        tr2 += A[row_i + j] * A[n * j + i];
+    }
+
+    U det2 = 2 * tr2 - tr1 * tr1;
+
+    if (det2 < 0)
+      return std::sqrt(std::abs(tr2 / 2));
+
+    return (std::abs(tr1) + std::sqrt(det2)) / 2;
+  };
 }

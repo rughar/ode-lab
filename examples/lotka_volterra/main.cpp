@@ -27,13 +27,14 @@ int main()
 
     std::ofstream out("trajectory.txt");
 
-    double h = 0.1;
-    for (size_t i = 0; i < 1000; ++i)
+    double h = core.suggest_first_stepsize(1.0, 0.1);
+
+    for (size_t i = 0; i < 500; ++i)
     {
         // core.step(0.1);
-        h = core.step_adaptive(h, 0.1);
-        out << core.u[0] << " " << core.u[1] << std::endl;
-        // out << h << std::endl;
+        core.step_adaptive(h, 0.1, 0.3, 2.0);
+        // out << core.u[0] << " " << core.u[1] << std::endl;
+        out << h << std::endl;
     }
     out.close();
 
