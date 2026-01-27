@@ -187,14 +187,6 @@ namespace verlet
     return mu / std::max(mu / h_max, omega);
   }
 
-  template <class U>
-  inline void ricatti_core<U>::prepare_step()
-  {
-    std::fill(vec.begin(), vec.end(), U(0));
-    std::fill(mat.begin(), mat.end(), U(0));
-    set_coef();
-  }
-
   // -- proxies ---------------------------------------------------------------
 
   template <class U>
@@ -247,12 +239,21 @@ namespace verlet
   }
 
   template <class U>
+  inline void ricatti_core<U>::prepare_step()
+  {
+    std::fill(vec.begin(), vec.end(), U(0));
+    std::fill(mat.begin(), mat.end(), U(0));
+    set_coef();
+  }
+
+  template <class U>
   inline void ricatti_core<U>::finish_step(const U h)
   {
     for (size_t i = 0; i < n; i++)
     {
+      const size_t row_i = n * i;
       for (size_t j = 0; j < n; j++)
-        mat[n * i + j] *= -h / 2;
+        mat[row_i + j] *= -h / 2;
 
       mat[(n + 1) * i] += 1;
       u[i] += h * vec[i];
