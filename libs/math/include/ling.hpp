@@ -25,7 +25,7 @@ namespace math
   // ---------------------------------------------------------------------------
 
   template <class Um>
-  void lu_naive(const size_t n, Um &A)
+  inline void lu_naive(const size_t n, Um &A)
   {
     for (size_t i = 0; i < n; i++)
     {
@@ -52,7 +52,7 @@ namespace math
   // ---------------------------------------------------------------------------
 
   template <class Um, class Uv>
-  void fb_naive(const size_t n, const Um &A, Uv &v)
+  inline void fb_naive(const size_t n, const Um &A, Uv &v)
   {
     for (size_t i = 1; i < n; i++)
     {
@@ -93,7 +93,7 @@ namespace math
   // ---------------------------------------------------------------------------
 
   template <class Um>
-  auto spectral_radius_estimate(const size_t n, const Um &A)
+  inline auto spectral_radius_estimate(const size_t n, const Um &A)
   {
     using U = std::remove_cvref_t<decltype(A[0])>;
 
@@ -114,5 +114,33 @@ namespace math
       return std::sqrt(std::abs(tr2 / 2));
 
     return (std::abs(tr1) + std::sqrt(det2)) / 2;
-  };
+  }
+
+  
+  template<class V1, class V2>
+  inline auto dot_product(const size_t n, const V1 &a, const V2 &b)
+  {
+    using U = std::remove_cvref_t<decltype(a[0] * b[0])>;
+    U tmp = 0;
+    for(size_t i = 0; i < n; ++i)
+      tmp += a[i] * b[i];
+    return tmp;
+  }
+
+
+  template <class V, class Vpack>
+  inline void remove_tangent_components(const size_t n, const int p, V &x, const Vpack &u)
+  {
+    for (int j = 0; j < p; j++)
+    {
+      using U = std::remove_cvref_t<decltype(x[0])>;
+      U num = 0;
+      
+      for (size_t i = 0; i < n; ++i)
+        num += u[j][i] * x[i];
+      for (size_t i = 0; i < n; ++i)
+        x[i] -= num * u[j][i];
+    }
+  }
+
 }
