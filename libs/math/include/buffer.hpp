@@ -1,61 +1,27 @@
 #pragma once
-#include <vector>
-#include <deque>
+#include <bit>
 
 namespace math
 {
-  template <class U>
-  class vec_buffer
+  class buffer
   {
   public:
-    ~vec_buffer();
-    void set(size_t size);
-    U *take();
-    void free(U *link);
+    auto take();
+    void free(unsigned const i);
 
   private:
-    size_t n;
-    std::vector<U *> data;
-    std::vector<bool> taken;
+    unsigned long long occupy = 0;
   };
 
-  template <class U>
-  inline vec_buffer<U>::~vec_buffer()
+  inline auto buffer::take()
   {
-    for (U* d : data) 
-      delete[] d;
+    auto index = std::countr_zero(~occupy);
+    occupy |= (1ull << index);
+    return index;
   }
 
-  template <class U>
-  inline void vec_buffer<U>::set(size_t size)
+  inline void buffer::free(unsigned const index)
   {
-    n = size;
+    occupy &= ~(1ull << index);
   }
-
-  template <class U>
-  inline U *vec_buffer<U>::take()
-  {
-    for (size_t i = 0; i < data.size(); ++i)
-      if (!taken[i])
-      {
-        taken[i] = 1;
-        return data[i];
-      }
-
-    U* vec = new U[n];
-    data.push_back(vec);
-    taken.push_back(1);
-    return vec;
-  }
-
-  template <class U>
-  inline void vec_buffer<U>::free(U *link)
-  {
-    for (size_t i = 0; i < data.size(); ++i)
-      if (data[i] == link) {
-        taken[i] = 0;
-        return;
-      }
-  }
-
 }

@@ -12,6 +12,7 @@ FetchContent_MakeAvailable(Catch2)
 add_executable(ode_lab_tests
   smoke.cpp
   ricatti.cpp
+  linsolve.cpp
 )
 
 target_link_libraries(ode_lab_tests
