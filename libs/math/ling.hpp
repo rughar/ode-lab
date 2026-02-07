@@ -119,7 +119,6 @@ namespace math
   {
     for (int j = 0; j < p; j++)
     {
-      using U = std::remove_cvref_t<decltype(x[0])>;
       U num = 0;
 
       for (size_t i = 0; i < n; ++i)
