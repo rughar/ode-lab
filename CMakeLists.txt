@@ -10,4 +10,4 @@ add_subdirectory(libs)
 add_subdirectory(examples)
 
 enable_testing()
-add_subdirectory(tests)
+add_subdirectory(tests/utests)

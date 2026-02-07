@@ -10,17 +10,17 @@ namespace utest
     try
     {
       test_func();
-      std::cout << "Passed: " << test_name << "\n";
+      std::cout << "\033[32mPASSED\033[0m: " << test_name << "\n";
       return 0;
     }
     catch (const std::exception &e)
     {
-      std::cerr << "Failed: " << test_name << " - " << e.what() << "\n";
+      std::cerr << "\033[31mFAILED\033[0m: " << test_name << " - " << e.what() << "\n";
       return 1;
     }
     catch (...)
     {
-      std::cerr << "Failed: " << test_name << " - " << "Unknown exception\n";
+      std::cerr << "\033[31mFAILED\033[0m: " << test_name << " - " << "Unknown exception\n";
       return 1;
     }
   }

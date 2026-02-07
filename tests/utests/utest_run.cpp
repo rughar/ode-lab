@@ -2,14 +2,21 @@
 #include <stdexcept>
 #include <utest_frame.hpp>
 
-void test_dummy()
+#include <ling_test.hpp>
+
+void test_smoke()
 {
-  throw std::runtime_error("Newton solver did not converge");
 }
 
-int main() 
+int main()
 {
   int failed = 0;
-  failed += utest::run(test_dummy, "Dummy test"); 
+
+  if (utest::run(test_smoke, "utest smoke"))
+    return 1;
+
+  failed += utest::run(test_dot_product, "dot_product");
+  failed += utest::run(test_spectral_radius_estimate, "spectral_radius_estimate");
+
   return failed;
 }
