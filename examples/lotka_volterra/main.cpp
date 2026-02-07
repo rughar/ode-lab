@@ -1,19 +1,17 @@
 #include <iostream>
-#include <ricatti.hpp>
+#include <qode1.hpp>
 #include <fstream>
 
 int main()
 {
 
-    class Lhotka_Voltera : public verlet::ricatti_core<double>
+    class Lotka_Voltera : public qode::qode1_core<double>
     {
     public:
-        Lhotka_Voltera() : verlet::ricatti_core<double>(2) {};
+        Lotka_Voltera() : qode::qode1_core<double>(2) {};
 
         void set_coef() override
         {
-            a_coef(0) = -0.0;
-
             b_coef(0, 0) = 2.0 / 3.0;
             b_coef(1, 1) = -1.0;
 
@@ -22,17 +20,17 @@ int main()
         }
     };
 
-    Lhotka_Voltera core;
-    core.u = {1.0, 1.0};
+    Lotka_Voltera core;
+    core.x = {1.0, 1.0};
 
     std::ofstream out("trajectory.txt");
 
-    double h = core.suggest_first_stepsize(1.0, 0.1);
+    double h = core.suggest_first_stepsize(1.0, 0.03);
 
     for (size_t i = 0; i < 500; ++i)
     {
         // core.step(0.1);
-        core.step_adaptive(h, 0.1, 0.3, 2.0);
+        core.step_adaptive(h, 0.03);
         // out << core.u[0] << " " << core.u[1] << std::endl;
         out << h << std::endl;
     }

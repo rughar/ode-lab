@@ -114,6 +114,17 @@ namespace math
     return (std::abs(tr1) + std::sqrt(det2)) / 2;
   }
 
+  // ---------------------------------------------------------------------------
+  //  remove_tangent_components
+  // ---------------------------------------------------------------------------
+  //  Removes from x the components parallel to given tangent directions u[j]:
+  //
+  //      x <- x - sum_j <u_j, x> u_j
+  //
+  //  The operation is performed in place. The vectors u[j] are assumed to be
+  //  normalized; no checks or normalization are performed.
+  // ---------------------------------------------------------------------------
+
   template <class U, class Upack>
   inline void remove_tangent_components(const size_t n, const int p, U x[], const Upack &u)
   {
@@ -128,13 +139,14 @@ namespace math
     }
   }
 
-  // ============================================================
+  // ---------------------------------------------------------------------------
   // solve_opt<U,n>(A,b)
-  // - In-place solve of A*x = b with no pivoting.
-  // - Overwrites A and b (b becomes x).
-  // ============================================================
+  // ---------------------------------------------------------------------------
+  // In-place solve of A*x = b with no pivoting.
+  // Overwrites A and b (b becomes x).
+  // ---------------------------------------------------------------------------
 
-  template <class U, std::size_t n>
+  template <size_t n, class U>
   inline void solve_opt(U A[n * n], U b[n])
   {
     if constexpr (n == 1)
