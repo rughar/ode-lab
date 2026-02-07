@@ -1,6 +1,13 @@
 #include <iostream>
+#include <utest_frame.hpp>
 
-int main() {
-  std::cout << "ode_lab unit test runner (placeholder)\n";
-  return 0;
+void test_dummy()
+{
+}
+
+int main() 
+{
+  int failed = 0;
+  failed += utest::run(test_dummy, "Dummy test"); 
+  return failed;
 }
