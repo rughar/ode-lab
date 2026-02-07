@@ -1,5 +1,5 @@
 add_library(math INTERFACE)
 
 target_include_directories(math INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )

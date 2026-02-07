@@ -4,4 +4,4 @@ file(GLOB_RECURSE SANDBOX_SOURCES CONFIGURE_DEPENDS
 
 add_executable(sandbox ${SANDBOX_SOURCES})
 
-target_link_libraries(sandbox PRIVATE verlet rkgl)
+target_link_libraries(sandbox PRIVATE rkgl qode)

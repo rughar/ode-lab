@@ -18,7 +18,7 @@ add_executable(ode_lab_tests
 target_link_libraries(ode_lab_tests
   PRIVATE
     Catch2::Catch2WithMain
-    verlet
+    qode
     math
 )
 

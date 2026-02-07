@@ -4,4 +4,4 @@ file(GLOB_RECURSE SANDBOX_SOURCES CONFIGURE_DEPENDS
 
 add_executable(lotka_volterra ${SANDBOX_SOURCES})
 
-target_link_libraries(lotka_volterra PRIVATE verlet)
+target_link_libraries(lotka_volterra PRIVATE qode)
