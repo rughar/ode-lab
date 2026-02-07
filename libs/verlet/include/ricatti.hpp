@@ -235,7 +235,7 @@ namespace verlet
   template <class U>
   inline U ricatti_core<U>::jacobian_spectral_radius()
   {
-    return math::spectral_radius_estimate(n, mat);
+    return math::spectral_radius_estimate(n, mat.data());
   }
 
   template <class U>
@@ -259,7 +259,7 @@ namespace verlet
       u[i] += h * vec[i];
     }
 
-    math::lu_naive(n, mat);
-    math::fb_naive(n, mat, u);
+    math::lu_naive(n, mat.data());
+    math::fb_naive(n, mat.data(), u.data());
   }
 }
