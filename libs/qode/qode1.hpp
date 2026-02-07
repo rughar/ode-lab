@@ -5,14 +5,13 @@
 #include <ling.hpp>
 
 // =============================================================================
-//  FILE: ricatti.hpp  -  Riccati equation integrator with stepsize control
+//  FILE: qode1.hpp  -  Quadratic ODE integrator with stepsize control
 // =============================================================================
 //
 //  Purpose
 //  -------
-//  This file defines the class ricatti_core<U>, which provides a symmetric
-//  one-step integrator for systems of ordinary differential equations of
-//  Riccati type:
+//  This file defines the class qode1_core<U>, which provides a symmetric
+//  one-step integrator for systems of quadratic ordinary differential equations
 //
 //      \dot{x}_i = A_i
 //                  + sum_j     B_{i,j} x_j
@@ -33,21 +32,20 @@
 //
 //  How to use
 //  ----------
-//  1) Derive a class from ricatti_core<U>.
+//  1) Derive a class from qode1_core<U>.
 //  2) Pass the system dimension to the base-class constructor.
 //  3) Override the method
 //
 //        void set_coef();
 //
-//     to define the vector field.
-//  4) Inside set_coef(), assign coefficients using:
+//     Inside set_coef(), assign coefficients using:
 //
 //        A_COEF(i)        = value;
 //        B_COEF(i, j)     = value;
 //        C_COEF(i, j, k)  = value;
 //
-//  5) Set the initial state in the public vector `u`.
-//  6) Use
+//  4) Set the initial state in the public vector `u`.
+//  5) Use
 //
 //        step(h)
 //
@@ -91,15 +89,15 @@
 //
 // =============================================================================
 
-namespace verlet
+namespace qode
 {
   template <class U>
-  class ricatti_core
+  class qode1_core
   {
   public:
-    std::vector<U> u;
+    std::vector<U> x;
 
-    explicit ricatti_core(const size_t size);
+    explicit qode1_core(const size_t size);
 
     virtual void set_coef() = 0;
 
@@ -113,21 +111,21 @@ namespace verlet
 
     struct ACoefProxy
     {
-      ricatti_core &self;
+      qode1_core &self;
       size_t i;
       void operator=(U value);
     };
 
     struct BCoefProxy
     {
-      ricatti_core &self;
+      qode1_core &self;
       size_t i, j;
       void operator=(U value);
     };
 
     struct CCoefProxy
     {
-      ricatti_core &self;
+      qode1_core &self;
       size_t i, j, k;
       void operator=(U value);
     };
@@ -145,33 +143,33 @@ namespace verlet
   };
 
   // -------------------------------------------------------------------------
-  //  ricatti_core<U> implementation
+  //  qode1_core<U> implementation
   // -------------------------------------------------------------------------
 
   // -- public API ------------------------------------------------------------
 
   template <class U>
-  inline ricatti_core<U>::ricatti_core(const size_t size) : n(size)
+  inline qode1_core<U>::qode1_core(const size_t size) : n(size)
   {
     vec.resize(n, U(0));
     mat.resize(n * n, U(0));
   }
 
   template <class U>
-  inline size_t ricatti_core<U>::dim() const
+  inline size_t qode1_core<U>::dim() const
   {
     return n;
   }
 
   template <class U>
-  inline void ricatti_core<U>::step(const U h)
+  inline void qode1_core<U>::step(const U h)
   {
     prepare_step();
     finish_step(h);
   }
 
   template <class U>
-  inline void ricatti_core<U>::step_adaptive(U &h, const U mu, const U low_bound, const U high_bound)
+  inline void qode1_core<U>::step_adaptive(U &h, const U mu, const U low_bound, const U high_bound)
   {
     prepare_step();
     U omega = jacobian_spectral_radius();
@@ -180,7 +178,7 @@ namespace verlet
   }
 
   template <class U>
-  inline U ricatti_core<U>::suggest_first_stepsize(const U h_max, const U mu)
+  inline U qode1_core<U>::suggest_first_stepsize(const U h_max, const U mu)
   {
     prepare_step();
     U omega = jacobian_spectral_radius();
@@ -190,42 +188,42 @@ namespace verlet
   // -- proxies ---------------------------------------------------------------
 
   template <class U>
-  inline void ricatti_core<U>::ACoefProxy::operator=(U value)
+  inline void qode1_core<U>::ACoefProxy::operator=(U value)
   {
     self.vec[i] += value;
   }
 
   template <class U>
-  inline void ricatti_core<U>::BCoefProxy::operator=(U value)
+  inline void qode1_core<U>::BCoefProxy::operator=(U value)
   {
     self.mat[self.n * i + j] += value;
-    self.vec[i] += value * self.u[j] / 2;
+    self.vec[i] += value * self.x[j] / 2;
   }
 
   template <class U>
-  inline void ricatti_core<U>::CCoefProxy::operator=(U value)
+  inline void qode1_core<U>::CCoefProxy::operator=(U value)
   {
-    self.mat[self.n * i + j] += value * self.u[k];
-    self.mat[self.n * i + k] += value * self.u[j];
+    self.mat[self.n * i + j] += value * self.x[k];
+    self.mat[self.n * i + k] += value * self.x[j];
   }
 
   template <class U>
-  inline typename ricatti_core<U>::ACoefProxy
-  ricatti_core<U>::a_coef(const size_t i)
+  inline typename qode1_core<U>::ACoefProxy
+  qode1_core<U>::a_coef(const size_t i)
   {
     return ACoefProxy{*this, i};
   }
 
   template <class U>
-  inline typename ricatti_core<U>::BCoefProxy
-  ricatti_core<U>::b_coef(const size_t i, const size_t j)
+  inline typename qode1_core<U>::BCoefProxy
+  qode1_core<U>::b_coef(const size_t i, const size_t j)
   {
     return BCoefProxy{*this, i, j};
   }
 
   template <class U>
-  inline typename ricatti_core<U>::CCoefProxy
-  ricatti_core<U>::c_coef(const size_t i, const size_t j, const size_t k)
+  inline typename qode1_core<U>::CCoefProxy
+  qode1_core<U>::c_coef(const size_t i, const size_t j, const size_t k)
   {
     return CCoefProxy{*this, i, j, k};
   }
@@ -233,13 +231,13 @@ namespace verlet
   // -- private ---------------------------------------------------------------
 
   template <class U>
-  inline U ricatti_core<U>::jacobian_spectral_radius()
+  inline U qode1_core<U>::jacobian_spectral_radius()
   {
     return math::spectral_radius_estimate(n, mat.data());
   }
 
   template <class U>
-  inline void ricatti_core<U>::prepare_step()
+  inline void qode1_core<U>::prepare_step()
   {
     std::fill(vec.begin(), vec.end(), U(0));
     std::fill(mat.begin(), mat.end(), U(0));
@@ -247,7 +245,7 @@ namespace verlet
   }
 
   template <class U>
-  inline void ricatti_core<U>::finish_step(const U h)
+  inline void qode1_core<U>::finish_step(const U h)
   {
     for (size_t i = 0; i < n; i++)
     {
@@ -256,10 +254,10 @@ namespace verlet
         mat[row_i + j] *= -h / 2;
 
       mat[row_i + i] += 1;
-      u[i] += h * vec[i];
+      x[i] += h * vec[i];
     }
 
     math::lu_naive(n, mat.data());
-    math::fb_naive(n, mat.data(), u.data());
+    math::fb_naive(n, mat.data(), x.data());
   }
 }
