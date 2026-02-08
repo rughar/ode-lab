@@ -2,9 +2,9 @@
 
 #include <stdexcept>
 #include <string>
-#include <vector>
 #include <iostream>
 #include <format>
+#include <string_view>
 
 namespace utest
 {
@@ -26,30 +26,67 @@ namespace utest
     }
   };
 
-  struct error_accumulator
+  class error_accumulator
   {
-    std::vector<std::string> errors;
+  private:
+    std::string msg;
+    std::string p_prefix = "\033[32mPASSED\033[0m: ";
+    std::string f_prefix = "\033[31mFAILED\033[0m: ";
+    bool silent;
 
-    void add(const std::string &error)
+  public:
+    error_accumulator(const bool silence) : silent(silence)
     {
-      errors.push_back(error);
     }
 
-    void throw_if_any()
+    error_accumulator &operator<<(const std::string_view &error_message)
     {
-      if (!errors.empty())
-      {
-        std::string msg;
-        std::string sep;
+      if (!error_message.empty())
+        msg += "\n  - " + std::string(error_message);
+      return *this;
+    }
 
-        for (const auto &error : errors) {
-          msg += sep + error;
-          sep = "\n  - ";
-        }
+    bool is_silent() const
+    {
+      return silent;
+    }
+
+    void throw_if_any() const
+    {
+      if (!msg.empty())
         throw std::runtime_error(msg);
-      }
     }
   };
+
+  template <class TestFn>
+  int run(TestFn &&test_func, const std::string_view &test_name) noexcept
+  {
+    error_accumulator ea(test_name.empty());
+
+    const std::string passed_prefix = "\033[32mPASSED\033[0m: " + std::string(test_name);
+    const std::string failed_prefix = "\033[31mFAILED\033[0m: " + std::string(test_name);
+
+    try
+    {
+      test_func(ea);
+      ea.throw_if_any();
+      if (!ea.is_silent())
+        std::cout << passed_prefix << "\n";
+      return 0;
+    }
+    catch (const std::exception &e)
+    {
+      if (!ea.is_silent())
+        std::cout << failed_prefix << e.what() << "\n";
+      return 1;
+    }
+    catch (...)
+    {
+      if (!ea.is_silent())
+        std::cout << failed_prefix << " (Unknown exception)\n";
+      return 1;
+    }
+  }
 
   void highlight_difference(std::string &a, std::string &b)
   {
@@ -78,57 +115,37 @@ namespace utest
     b.append("\033[0m");
   }
 
-  template <class S, class U>
-  void compare_numeric(const S &msg, U expected, U actual, U tol = std::numeric_limits<U>::epsilon())
+  template <class U>
+  std::string compare_numeric(const std::string_view &msg, U expected, U actual, U tol = U(0))
   {
     if (std::abs(expected - actual) > tol)
     {
       std::string expected_str = std::format("{:.17g}", expected);
       std::string actual_str = std::format("{:.17g}", actual);
       highlight_difference(expected_str, actual_str);
-      throw std::runtime_error(std::string(msg) + ": expected " + expected_str + ", got " + actual_str);
+      return std::string(msg) + ": expected " + expected_str + ", got " + actual_str;
     }
+    return "";
   }
 
-  template <class S>
-  void write_category(const S &category_name)
+  void write_category(const std::string_view &category_name)
   {
     std::cout << "\033[34m" << category_name << "\033[0m\n";
   }
 
-  template <class S, class TestFn>
-  int run(TestFn &&test_func, const S &test_name) noexcept
-  {
-    try
-    {
-      test_func();
-      if (*test_name)
-        std::cout << "\033[32mPASSED\033[0m: " << test_name << "\n";
-      return 0;
-    }
-    catch (const std::exception &e)
-    {
-      if (*test_name)
-        std::cout << "\033[31mFAILED\033[0m: " << test_name << "\n  - " << e.what() << "\n";
-      return 1;
-    }
-    catch (...)
-    {
-      if (*test_name)
-        std::cout << "\033[31mFAILED\033[0m: " << test_name << "\n  - " << "Unknown exception\n";
-      return 1;
-    }
-  }
-
-  void test_smoke()
+  void test_smoke(error_accumulator &ea)
   {
     if (1 + 1 != 2)
-      throw std::runtime_error("math is broken");
+      ea << "math is broken";
 
-    auto must_throw = []()
-    { throw std::runtime_error("expected failure"); };
+    auto must_fail = [&ea](error_accumulator &ea_in)
+    {
+      ea_in << "This test should failed silently. Becouse you are seeing this message, it did not.";
+      if (!ea_in.is_silent())
+        ea << "Silencing did not work in the subtest.";
+    };
 
-    if (utest::run(must_throw, "") == 0)
-      throw std::runtime_error("run() did not catch the exception");
+    if (utest::run(must_fail, "") == 0)
+      ea << "run() did not catch the exception";
   }
 };
