@@ -105,13 +105,13 @@ namespace utest
     catch (const std::exception &e)
     {
       if (*test_name)
-        std::cerr << "\033[31mFAILED\033[0m: " << test_name << " - " << e.what() << "\n";
+        std::cout << "\033[31mFAILED\033[0m: " << test_name << " - " << e.what() << "\n";
       return 1;
     }
     catch (...)
     {
       if (*test_name)
-        std::cerr << "\033[31mFAILED\033[0m: " << test_name << " - " << "Unknown exception\n";
+        std::cout << "\033[31mFAILED\033[0m: " << test_name << " - " << "Unknown exception\n";
       return 1;
     }
   }
