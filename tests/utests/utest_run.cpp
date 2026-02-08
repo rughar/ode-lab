@@ -1,27 +1,15 @@
 #include <iostream>
 #include <stdexcept>
-#include <vector>
 #include <utest_frame.hpp>
 #include <ling_test.hpp>
-
-void test_smoke()
-{
-  if (1 + 1 != 2)
-    throw std::runtime_error("math is broken");
-
-  auto must_throw = []()
-  { throw std::runtime_error("expected failure"); };
-  
-  if (utest::run(must_throw, "") == 0)
-    throw std::runtime_error("run() did not catch the exception");
-}
 
 int main()
 {
   utest::test_counter tc;
+
   utest::write_category("smoke");
 
-  tc += utest::run(test_smoke, "utest smoke");
+  tc += utest::run(utest::test_smoke, "utest");
   if (tc.failed)
     return 1;
 

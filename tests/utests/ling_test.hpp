@@ -8,23 +8,26 @@ void test_dot_product()
   double a[] = {1.0, 2.0, 3.0};
   double b[] = {4.0, 5.0, 6.0};
   double expected = 1.0 * 4.0 + 2.0 * 5.0 + 3.0 * 6.0;
-  double result = math::dot_product(3, a, b);
-  if (result != expected)
-    throw std::runtime_error("wrong dot product result");
+  utest::compare_numeric("wrong dot product result", expected, math::dot_product(3, a, b));
 }
 
 void test_spectral_radius_estimate()
 {
-  double mat[] = {
-      1.0,
+  const double mat[] = {
+      1.1,
       2.0,
       0.0,
-      1.0,
+      0.8,
   };
-  double expected = 1.0;
+
+  double expected = 1.1;
   double result = math::spectral_radius_estimate(2, mat);
-  if (result != expected)
-    throw std::runtime_error("wrong spectral radius on 2*2 matrix");
+  utest::compare_numeric("wrong spectral radius on 2*2 matrix", expected, result);
+
+  const double mat2[] = {0.0, 3.0, -3.0, 0.0};
+  expected = 3.0;
+  result = math::spectral_radius_estimate(2, mat2);
+  utest::compare_numeric("wrong spectral radius on 2*2 antisymmetric matrix", expected, result);
 }
 
 struct QuasiRandom
@@ -41,7 +44,7 @@ struct QuasiRandom
 };
 
 template <size_t n>
-void subtest_solve_opt()
+void subtest_solve_opt(utest::error_accumulator &acc)
 {
   double A[n * n], B[n * n];
   double x[n], y[n];
@@ -62,21 +65,24 @@ void subtest_solve_opt()
   for (size_t i = 0; i < n; ++i)
   {
     double sum = math::dot_product(n, B + n * i, x);
-    if (std::abs(sum - y[i]) > 1e-15)
-      throw std::runtime_error("wrong solve_opt<" + std::to_string(n) + ">");
+    utest::compare_numeric(acc, "wrong solve_opt<" + std::to_string(n) + ">", y[i], sum, 2e-20 * std::sqrt(n));
   }
 }
 
 void test_solve_opt()
 {
-  subtest_solve_opt<1>();
-  subtest_solve_opt<2>();
-  subtest_solve_opt<3>();
-  subtest_solve_opt<4>();
-  subtest_solve_opt<5>();
-  subtest_solve_opt<6>();
-  subtest_solve_opt<7>();
-  subtest_solve_opt<8>();
+  utest::error_accumulator acc;
+  
+  subtest_solve_opt<1>(acc);
+  subtest_solve_opt<2>(acc);
+  subtest_solve_opt<3>(acc);
+  subtest_solve_opt<4>(acc);
+  subtest_solve_opt<5>(acc);
+  subtest_solve_opt<6>(acc);
+  subtest_solve_opt<7>(acc);
+  subtest_solve_opt<20>(acc);
+
+  acc.throw_if_any();
 }
 
 void test_remove_tangent_components()
@@ -87,6 +93,7 @@ void test_remove_tangent_components()
   };
   double x[3] = {1.0, 2.0, 3.0};
   math::remove_tangent_components(3, 2, x, u);
-  if (std::abs(x[0]) > 1e-15 || std::abs(x[1]) > 1e-15 || std::abs(x[2] - 3.0) > 1e-15)
-    throw std::runtime_error("wrong remove_tangent_components");
+  utest::compare_numeric("wrong remove_tangent_component 0", 0.0, x[0]);
+  utest::compare_numeric("wrong remove_tangent_component 1", 0.0, x[1]);
+  utest::compare_numeric("wrong remove_tangent_component 2", 3.0, x[2]);
 }
