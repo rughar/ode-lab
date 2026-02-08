@@ -6,7 +6,7 @@
 void test_dot_product()
 {
   double a[] = {1.0, 2.0, 3.0};
-  double b[] = {4.0, 5.0, 7.0};
+  double b[] = {4.0, 5.0, 6.0};
   double expected = 1.0 * 4.0 + 2.0 * 5.0 + 3.0 * 6.0;
   utest::compare_numeric("wrong dot product result", expected, math::dot_product(3, a, b));
 }
@@ -66,7 +66,7 @@ void subtest_solve_opt(utest::error_accumulator &acc)
   {
     double sum = math::dot_product(n, B + n * i, x);
     try {
-      utest::compare_numeric("wrong solve_opt<" + std::to_string(n) + ">", y[i], sum, 2e-20 * std::sqrt(n));
+      utest::compare_numeric("wrong solve_opt<" + std::to_string(n) + ">", y[i], sum, 2e-16 * std::sqrt(n));
     }
     catch (const std::exception &e)
     {

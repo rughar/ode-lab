@@ -20,7 +20,5 @@ int main()
   tc += utest::run(test_solve_opt, "solve_opt");
   tc += utest::run(test_remove_tangent_components, "remove_tangent_components");
 
-  tc.write_summary();
-
   return tc.failed ? 1 : 0;
 }

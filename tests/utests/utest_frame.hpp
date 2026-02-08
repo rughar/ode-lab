@@ -20,7 +20,7 @@ namespace utest
         ++failed;
     };
 
-    void write_summary() const
+    ~test_counter()
     {
       std::cout << "\033[33mTest summary\033[0m: " << total - failed << " passed, " << failed << " failed, out of " << total << " tests.\n";
     }
