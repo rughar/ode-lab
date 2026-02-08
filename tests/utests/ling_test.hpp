@@ -65,14 +65,20 @@ void subtest_solve_opt(utest::error_accumulator &acc)
   for (size_t i = 0; i < n; ++i)
   {
     double sum = math::dot_product(n, B + n * i, x);
-    utest::compare_numeric(acc, "wrong solve_opt<" + std::to_string(n) + ">", y[i], sum, 2e-20 * std::sqrt(n));
+    try {
+      utest::compare_numeric("wrong solve_opt<" + std::to_string(n) + ">", y[i], sum, 2e-20 * std::sqrt(n));
+    }
+    catch (const std::exception &e)
+    {
+      acc.add(e.what());
+    }
   }
 }
 
 void test_solve_opt()
 {
   utest::error_accumulator acc;
-  
+
   subtest_solve_opt<1>(acc);
   subtest_solve_opt<2>(acc);
   subtest_solve_opt<3>(acc);

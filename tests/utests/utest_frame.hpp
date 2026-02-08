@@ -86,19 +86,6 @@ namespace utest
     }
   }
 
-  template <class S, class U>
-  void compare_numeric(error_accumulator &acc, const S &msg, U expected, U actual, U tol = std::numeric_limits<U>::epsilon())
-  {
-    try
-    {
-      compare_numeric(msg, expected, actual, tol);
-    }
-    catch (const std::exception &e)
-    {
-      acc.add(e.what());
-    }
-  }
-
   template <class S>
   void write_category(const S &category_name)
   {
