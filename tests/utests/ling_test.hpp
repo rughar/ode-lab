@@ -6,7 +6,7 @@
 void test_dot_product()
 {
   double a[] = {1.0, 2.0, 3.0};
-  double b[] = {4.0, 5.0, 6.0};
+  double b[] = {4.0, 5.0, 7.0};
   double expected = 1.0 * 4.0 + 2.0 * 5.0 + 3.0 * 6.0;
   utest::compare_numeric("wrong dot product result", expected, math::dot_product(3, a, b));
 }

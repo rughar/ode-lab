@@ -40,8 +40,12 @@ namespace utest
       if (!errors.empty())
       {
         std::string msg;
-        for (const auto &error : errors)
-          msg += "\n  - " + error;
+        std::string sep;
+
+        for (const auto &error : errors) {
+          msg += sep + error;
+          sep = "\n  - ";
+        }
         throw std::runtime_error(msg);
       }
     }
@@ -105,13 +109,13 @@ namespace utest
     catch (const std::exception &e)
     {
       if (*test_name)
-        std::cout << "\033[31mFAILED\033[0m: " << test_name << " - " << e.what() << "\n";
+        std::cout << "\033[31mFAILED\033[0m: " << test_name << "\n  - " << e.what() << "\n";
       return 1;
     }
     catch (...)
     {
       if (*test_name)
-        std::cout << "\033[31mFAILED\033[0m: " << test_name << " - " << "Unknown exception\n";
+        std::cout << "\033[31mFAILED\033[0m: " << test_name << "\n  - " << "Unknown exception\n";
       return 1;
     }
   }
